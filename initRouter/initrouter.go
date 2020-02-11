@@ -7,19 +7,19 @@ import (
 )
 import "net/http"
 
-func SetupRouter() *gin.Engine{
-	router:=gin.Default()
+func SetupRouter() *gin.Engine {
+	router := gin.Default()
 
 	//样式文件加载
-	if mode:=gin.Mode();mode==gin.TestMode{
+	if mode := gin.Mode(); mode == gin.TestMode {
 		router.LoadHTMLGlob("./../templates/*")
-	}else{
+	} else {
 		router.LoadHTMLGlob("templates/*")
 	}
-	router.Static("/statics","./statics")
-	router.StaticFile("/favicon.ico","./favicon.ico")
+	router.Static("/statics", "./statics")
+	router.StaticFile("/favicon.ico", "./favicon.ico")
 
-	index:=router.Group("/")
+	index := router.Group("/")
 	{
 		//// 添加 Get 请求路由
 		//index.GET("", retHelloGinAndMethod)
@@ -39,16 +39,16 @@ func SetupRouter() *gin.Engine{
 	}
 
 	// 添加 user
-	userRouter:=router.Group("/user")
+	userRouter := router.Group("/user")
 	{
-		userRouter.GET("/:name",handler.UserSave)
-		userRouter.GET("",handler.UserSaveByQuery)
-		userRouter.POST("/register",handler.UserRegister)
+		userRouter.GET("/:name", handler.UserSave)
+		userRouter.POST("/register", handler.UserRegister)
+		userRouter.POST("/login", handler.UserLogin)
 	}
 
 	return router
 }
 
-func retHelloGinAndMethod(context *gin.Context){
-	context.String(http.StatusOK,"Hello gin "+strings.ToLower(context.Request.Method)+" method")
+func retHelloGinAndMethod(context *gin.Context) {
+	context.String(http.StatusOK, "Hello gin "+strings.ToLower(context.Request.Method)+" method")
 }

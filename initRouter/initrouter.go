@@ -41,9 +41,10 @@ func SetupRouter() *gin.Engine {
 	// 添加 user
 	userRouter := router.Group("/user")
 	{
-		userRouter.GET("/:name", handler.UserSave)
 		userRouter.POST("/register", handler.UserRegister)
 		userRouter.POST("/login", handler.UserLogin)
+		userRouter.GET("/profile/", handler.UserProfile)
+		userRouter.POST("/update", handler.UpdateUserProfile)
 	}
 
 	return router

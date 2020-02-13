@@ -2,15 +2,19 @@ package initRouter
 
 import (
 	"GinHello/handler"
+	"GinHello/middleware"
+	"GinHello/utils"
 	"github.com/gin-gonic/gin"
-	"strings"
 )
 import "net/http"
 
 func SetupRouter() *gin.Engine {
-	router := gin.Default()
-
+	//router := gin.Default()
+	router := gin.New()
+	//添加自定义的logger中间件
+	router.Use(middleware.Logger(), gin.Recovery())
 	//样式文件加载
+
 	if mode := gin.Mode(); mode == gin.TestMode {
 		router.LoadHTMLGlob("./../templates/*")
 	} else {
@@ -18,6 +22,7 @@ func SetupRouter() *gin.Engine {
 	}
 	router.Static("/statics", "./statics")
 	router.StaticFile("/favicon.ico", "./favicon.ico")
+	router.StaticFS("/avatar", http.Dir(utils.RootPath()+"avatar/"))
 
 	index := router.Group("/")
 	{
@@ -43,13 +48,19 @@ func SetupRouter() *gin.Engine {
 	{
 		userRouter.POST("/register", handler.UserRegister)
 		userRouter.POST("/login", handler.UserLogin)
-		userRouter.GET("/profile/", handler.UserProfile)
-		userRouter.POST("/update", handler.UpdateUserProfile)
+		userRouter.GET("/profile/", middleware.Auth(), handler.UserProfile)
+		userRouter.POST("/update", middleware.Auth(), handler.UpdateUserProfile)
+	}
+
+	//添加文章
+	articleRouter := router.Group("/")
+	{
+		articleRouter.POST("/article", handler.Insert)
 	}
 
 	return router
 }
 
-func retHelloGinAndMethod(context *gin.Context) {
-	context.String(http.StatusOK, "Hello gin "+strings.ToLower(context.Request.Method)+" method")
-}
+//func retHelloGinAndMethod(context *gin.Context) {
+//	context.String(http.StatusOK, "Hello gin "+strings.ToLower(context.Request.Method)+" method")
+//}

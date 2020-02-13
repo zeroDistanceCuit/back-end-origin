@@ -16,7 +16,6 @@ import "GinHello/model"
 func UserSave(context *gin.Context) {
 	username := context.Param("name")
 	context.String(http.StatusOK, "用户"+username+"已保存")
-	return
 }
 
 // 通过 query 方法进行获取参数  /user?name=daksj&age=41
@@ -48,12 +47,13 @@ func UserLogin(context *gin.Context) {
 
 	u := user.QueryByEmail()
 	if u.Password == user.Password {
+		context.SetCookie("user_cookie", string(u.Id), 1000, "/", "localhost", false, true)
 		log.Println("登录成功", u.Email)
 		context.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"email": u.Email,
 			"id":    u.Id,
 		})
-	}else {
+	} else {
 		log.Println("登录失败*********")
 		context.Redirect(http.StatusMovedPermanently, "/")
 	}
@@ -65,9 +65,14 @@ func UserProfile(context *gin.Context) {
 	i, err := strconv.Atoi(id)
 	u, e := user.QueryById(i)
 
-	if e != nil || err != nil {
+	if e != nil {
 		context.HTML(http.StatusOK, "error.tmpl", gin.H{
 			"error": e,
+		})
+	}
+	if err != nil {
+		context.HTML(http.StatusOK, "error.tmpl", gin.H{
+			"error": err,
 		})
 	}
 

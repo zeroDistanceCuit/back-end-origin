@@ -5,6 +5,8 @@ import (
 	"GinHello/middleware"
 	"GinHello/utils"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 import "net/http"
 
@@ -55,8 +57,18 @@ func SetupRouter() *gin.Engine {
 	//添加文章
 	articleRouter := router.Group("/")
 	{
+		// 通过获取单篇文章
+		articleRouter.GET("/article/:id", handler.GetOne)
+		// 获取所有文章
+		articleRouter.GET("/articles", handler.GetAll)
+		// 添加一篇文章
 		articleRouter.POST("/article", handler.Insert)
+		articleRouter.DELETE("/article/:id", handler.DeleteOne)
 	}
+
+	//seag集成
+	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	return router
 }
